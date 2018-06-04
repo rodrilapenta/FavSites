@@ -3,11 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="59dp"
+    android:layout_height="60dp"
     android:foreground="@drawable/card_foreground"
-    card_view:cardCornerRadius="6dp"
-    card_view:cardElevation="4dp"
-    card_view:cardUseCompatPadding="true">
+    card_view:cardCornerRadius="1dp"
+    card_view:cardElevation="2dp"
+    card_view:cardUseCompatPadding="false">
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -17,18 +17,20 @@
 
         <TextView
             android:id="@+id/webInstanceName"
-            android:paddingTop="3dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:paddingTop="3dp"
             android:textColor="@android:color/holo_blue_dark"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/webInstanceDescription"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="30dp"
             android:layout_below="@id/webInstanceName"
-            android:textColor="@android:color/holo_green_dark"/>
+            android:gravity="center"
+            android:textColor="@android:color/holo_green_dark" />
 
         <TextView
             android:id="@+id/webInstanceUri"
