@@ -27,6 +27,7 @@ public class WebInstancesListAdapter extends RecyclerView.Adapter<WebInstancesLi
         public TextView webInstanceName;
         public TextView webInstanceDescription;
         public TextView webInstanceUri;
+        public TextView webInstanceFirebaseId;
 
 
         public WebInstanceViewHolder(final View v, final WebView webView) {
@@ -34,7 +35,7 @@ public class WebInstancesListAdapter extends RecyclerView.Adapter<WebInstancesLi
             webInstanceName = v.findViewById(R.id.webInstanceName);
             webInstanceDescription = v.findViewById(R.id.webInstanceDescription);
             webInstanceUri = v.findViewById(R.id.webInstanceUri);
-
+            webInstanceFirebaseId = v.findViewById(R.id.webInstanceFirebaseId);
         }
     }
 
@@ -57,7 +58,7 @@ public class WebInstancesListAdapter extends RecyclerView.Adapter<WebInstancesLi
         viewHolder.webInstanceName.setText(webInstances.get(i).getName());
         viewHolder.webInstanceDescription.setText(webInstances.get(i).getDescription());
         viewHolder.webInstanceUri.setText(webInstances.get(i).getUri());
-
+        viewHolder.webInstanceFirebaseId.setText(webInstances.get(i).getFirebaseId());
     }
 
     @Override

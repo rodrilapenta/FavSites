@@ -16,10 +16,20 @@ public class WebInstance {
     @DatabaseField
     private String uri;
 
+    @DatabaseField
+    private String firebaseId;
+
     public WebInstance(String name, String description, String uri) {
         this.name = name;
         this.description = description;
         this.uri = uri;
+    }
+
+    public WebInstance(String name, String description, String uri, String firebaseId) {
+        this.name = name;
+        this.description = description;
+        this.uri = uri;
+        this.firebaseId = firebaseId;
     }
 
     public WebInstance() {}
@@ -46,5 +56,13 @@ public class WebInstance {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public String getFirebaseId() {
+        return firebaseId;
+    }
+
+    public void setFirebaseId(String firebaseId) {
+        this.firebaseId = firebaseId;
     }
 }

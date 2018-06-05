@@ -55,7 +55,7 @@ public class SessionManager {
     }
 
     public void login(GoogleSignInAccount acct, final FirebaseDatabase firebaseDatabase) {
-        SharedPreferences.Editor editor = prefs.edit();acct.get
+        SharedPreferences.Editor editor = prefs.edit();
         editor.putString("userGoogleId", acct.getId());
         editor.putString("userGoogleName", acct.getGivenName());
         editor.putString("userGoogleEmail", acct.getEmail());
@@ -76,11 +76,15 @@ public class SessionManager {
 
     public void addWebInstance(WebInstance wi) {
         String key = databaseReference.push().getKey();
+        wi.setFirebaseId(key);
         databaseReference.child(key).setValue(wi);
     }
 
-    public void setWebInstancesEventListener(ChildEventListener webInstancesEventListener) {
-        this.webInstancesEventListener = webInstancesEventListener;
+    public void deleteWebInstanceByFireabseId(String firebaseId) {
+        if(firebaseId.isEmpty()) {
+            throw new RuntimeException("El firebaseId no puede ser vacío");
+        }
+        databaseReference.child(firebaseId).removeValue();
     }
 
     public void logout(Context context) {

@@ -39,6 +39,13 @@
             android:visibility="gone"
             android:textColor="@android:color/holo_orange_dark"/>
 
+        <TextView
+            android:id="@+id/webInstanceFirebaseId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:textColor="@android:color/holo_orange_dark"/>
+
         <View
             android:id="@+id/linea"
             android:layout_width="match_parent"

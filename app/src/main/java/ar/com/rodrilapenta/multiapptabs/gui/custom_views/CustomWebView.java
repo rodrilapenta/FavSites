@@ -45,18 +45,22 @@ public class CustomWebView extends WebView {
 
     @Override
     public void goBack() {
-        setVisibility(View.INVISIBLE);
-        animate(this, true);
-        super.goBack();
-        setVisibility(View.VISIBLE);
+        if(getUrl() != null && canGoBack()) {
+            setVisibility(View.INVISIBLE);
+            animate(this, true);
+            super.goBack();
+            setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
     public void goForward() {
-        setVisibility(View.INVISIBLE);
-        animate(this, false);
-        super.goForward();
-        setVisibility(View.VISIBLE);
+        if(getUrl() != null && canGoForward()) {
+            setVisibility(View.INVISIBLE);
+            animate(this, false);
+            super.goForward();
+            setVisibility(View.VISIBLE);
+        }
     }
 
     private void animate(final WebView view, Boolean back) {

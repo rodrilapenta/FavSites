@@ -8,7 +8,7 @@
     android:theme="@style/AppTheme.NoActionBar"
     android:fillViewport="true"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="ar.com.rodrilapenta.multiapptabs.LoginActivity"
+    tools:context="ar.com.rodrilapenta.multiapptabs.activities.LoginActivity"
     tools:showIn="@layout/activity_login">
 
     <RelativeLayout

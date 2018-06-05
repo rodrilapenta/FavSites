@@ -1,13 +1,13 @@
-package ar.com.rodrilapenta.multiapptabs;
+package ar.com.rodrilapenta.multiapptabs.activities;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,6 +29,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,36 +43,56 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import ar.com.rodrilapenta.multiapptabs.R;
 import ar.com.rodrilapenta.multiapptabs.controller.SessionManager;
 import ar.com.rodrilapenta.multiapptabs.controller.asynctasks.ImageLoadTask;
+import ar.com.rodrilapenta.multiapptabs.controller.listeners.RecyclerTouchListener;
 import ar.com.rodrilapenta.multiapptabs.db.model.WebInstance;
-import ar.com.rodrilapenta.multiapptabs.db.repository.WebInstanceRepository;
 import ar.com.rodrilapenta.multiapptabs.gui.adapter.WebInstancesListAdapter;
 import ar.com.rodrilapenta.multiapptabs.gui.custom_views.CustomWebView;
 import ar.com.rodrilapenta.multiapptabs.interfaces.ClickListener;
 
 public class MainActivity extends AppCompatActivity {
-    private WebInstanceRepository webInstanceRepository;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private SessionManager sessionManager;
     private Boolean isFullscreenActive = false;
     private CustomWebView wb;
+    private AudioManager audioManager;
+    private boolean fabExpanded = false;
+    private FloatingActionButton fabSettings;
+    private LinearLayout layoutFabVolumeUp, layoutFabVolumeDown, layoutFabFullscreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         sessionManager = SessionManager.getInstance(MainActivity.this);
-        //sessionManager.getWebInstances();
+        audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
+        fabSettings = this.findViewById(R.id.fabSetting);
 
-        final FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        layoutFabVolumeUp = this.findViewById(R.id.layoutFabVolumeUp);
+        layoutFabVolumeUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
+            }
+        });
+        layoutFabVolumeDown = this.findViewById(R.id.layoutFabVolumeDown);
+        layoutFabVolumeDown.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_PLAY_SOUND);
+            }
+        });
+
+        layoutFabFullscreen = this.findViewById(R.id.layoutFabFullscreen);
+        layoutFabFullscreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!isFullscreenActive) hideSystemUI();
@@ -81,16 +101,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //View v = findViewById(R.id.)
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        fabSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (fabExpanded == true){
+                    closeSubMenusFab();
+                } else {
+                    openSubMenusFab();
+                }
+            }
+        });
+
+        closeSubMenusFab();
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-
-        webInstanceRepository = WebInstanceRepository.getInstance(MainActivity.this);
+        NavigationView navigationView = findViewById(R.id.nav_view);
 
         mRecyclerView = findViewById(R.id.recyclerWebInstances);
         mRecyclerView.setHasFixedSize(true);
@@ -127,28 +157,18 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onReceiveValue(String html) {
                                 System.out.println("HTML COLOR: " + html);
-                                // Set a background drawable for the ActionBar
-                                // Set a color drawable as ActionBar background
-                                // This will change the ActionBar background color
                                 if(!html.equals("null")) {
                                     toolbar.setBackgroundColor(Color.parseColor(html.replace("\"", "")));
                                     getWindow().setStatusBarColor(Color.parseColor(html.replace("\"", "")));
+                                }
+                                else {
+                                    toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                                    getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
                                 }
                             }
                         });
             }
         });
-        /*wb.setOnTouchListener(new OnSwipeTouchListener(this) {
-            @Override
-            public void onSwipeLeft() {
-                fab.show();
-            }
-
-            @Override
-            public void onSwipeRight() {
-                fab.hide();
-            }
-        });*/
 
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
                 mRecyclerView, new ClickListener() {
@@ -162,8 +182,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onLongClick(View view, int position) {
-                Toast.makeText(MainActivity.this, "Long press on position :" + position,
-                        Toast.LENGTH_LONG).show();
+                String firebaseId = ((TextView) view.findViewById(R.id.webInstanceFirebaseId)).getText().toString();
+                sessionManager.deleteWebInstanceByFireabseId(firebaseId);
             }
 
         }));
@@ -201,9 +221,32 @@ public class MainActivity extends AppCompatActivity {
         loadWebInstances(wb);
     }
 
+    private void closeSubMenusFab(){
+        ((FloatingActionButton)layoutFabVolumeUp.findViewById(R.id.fabVolumeUp)).hide();
+        ((FloatingActionButton)layoutFabVolumeDown.findViewById(R.id.fabVolumeDown)).hide();
+        ((FloatingActionButton)layoutFabFullscreen.findViewById(R.id.fabFullscreen)).hide();
+        layoutFabVolumeUp.setVisibility(View.INVISIBLE);
+        layoutFabVolumeDown.setVisibility(View.INVISIBLE);
+        layoutFabFullscreen.setVisibility(View.INVISIBLE);
+        fabSettings.setImageResource(R.drawable.settings);
+        fabExpanded = false;
+    }
+
+    //Opens FAB submenus
+    private void openSubMenusFab(){
+        layoutFabVolumeUp.setVisibility(View.VISIBLE);
+        layoutFabVolumeDown.setVisibility(View.VISIBLE);
+        layoutFabFullscreen.setVisibility(View.VISIBLE);
+        ((FloatingActionButton)layoutFabVolumeUp.findViewById(R.id.fabVolumeUp)).show();
+        ((FloatingActionButton)layoutFabVolumeDown.findViewById(R.id.fabVolumeDown)).show();
+        ((FloatingActionButton)layoutFabFullscreen.findViewById(R.id.fabFullscreen)).show();
+        //Change settings icon to 'X' icon
+        fabSettings.setImageResource(R.drawable.settings);
+        fabExpanded = true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
         switch (item.getItemId()) {
             case R.id.addWebInstance:
                 final ViewGroup popupView = (ViewGroup) ((LayoutInflater) getSystemService( Context.LAYOUT_INFLATER_SERVICE )).inflate(R.layout.dialog_add_webinstance, null);
@@ -245,14 +288,10 @@ public class MainActivity extends AppCompatActivity {
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // Is better to use a List, because you don't know the size
-                // of the iterator returned by dataSnapshot.getChildren() to
-                // initialize the array
-                final List<Map<String, String>> propertyAddressList = new ArrayList<Map<String, String>>();
-                List<WebInstance> webInstances = new ArrayList<>();
+                List<WebInstance> webInstances = new ArrayList<WebInstance>();
                 for (DataSnapshot addressSnapshot : dataSnapshot.getChildren()) {
-                    Map<String, String> map = (Map) addressSnapshot.getValue();
-                    webInstances.add(new WebInstance(map.get("name"), map.get("description"), map.get("uri")));
+                    Map<String, String> map = (Map<String, String>) addressSnapshot.getValue();
+                    webInstances.add(new WebInstance(map.get("name"), map.get("description"), map.get("uri"), map.get("firebaseId")));
                 }
 
                 mAdapter = new WebInstancesListAdapter(webInstances, wb);
@@ -267,9 +306,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void hideSystemUI() {
-        // Enables regular immersive mode.
-        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
-        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_IMMERSIVE
@@ -288,8 +324,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide();
     }
 
-    // Shows the system bars by removing all the flags
-    // except for the ones that make the content appear under the system bars.
     private void showSystemUI() {
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
@@ -312,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -322,7 +356,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -330,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        int action = MotionEventCompat.getActionMasked(event);
+        int action = event.getActionMasked();
 
         switch (action) {
             case (MotionEvent.ACTION_DOWN):
@@ -349,77 +382,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onKeyDown(final int keyCode,final KeyEvent event) {
+        FloatingActionButton fab = findViewById(R.id.fabSetting);
+        switch(keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                fab.hide();
+                closeSubMenusFab();
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                fab.show();
+                return true;
+        }
+        return super.onKeyDown(keyCode,event);
+    }
+
+    /*@Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         int action = event.getAction();
         int keyCode = event.getKeyCode();
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_VOLUME_UP:
-                if (action == KeyEvent.ACTION_DOWN) {
-                    FloatingActionButton fab = findViewById(R.id.fab);
-                    fab.show();
-                }
-                return true;
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                if (action == KeyEvent.ACTION_DOWN) {
-                    FloatingActionButton fab = findViewById(R.id.fab);
-                    fab.hide();
-                }
-                return true;
-
-            case KeyEvent.KEYCODE_BACK:
-                if (wb.canGoBack()) {
-                    wb.goBack();
-                } else {
-                    finish();
-                }
-                return true;
-            default:
-                return super.dispatchKeyEvent(event);
+        if(keyCode == KeyEvent.KEYCODE_VOLUME_UP && action == KeyEvent.ACTION_DOWN && !event.isLongPress()) {
+            FloatingActionButton fab = findViewById(R.id.fab);
+            fab.show();
+            return true;
         }
-    }
-}
-
-class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
-
-    private ClickListener clicklistener;
-    private GestureDetector gestureDetector;
-
-    public RecyclerTouchListener(Context context, final RecyclerView recycleView, final ClickListener clicklistener) {
-
-        this.clicklistener = clicklistener;
-        gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return true;
-            }
-
-            @Override
-            public void onLongPress(MotionEvent e) {
-                View child = recycleView.findChildViewUnder(e.getX(), e.getY());
-                if (child != null && clicklistener != null) {
-                    clicklistener.onLongClick(child, recycleView.getChildAdapterPosition(child));
-                }
-            }
-        });
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        View child = rv.findChildViewUnder(e.getX(), e.getY());
-        if (child != null && clicklistener != null && gestureDetector.onTouchEvent(e)) {
-            clicklistener.onClick(child, rv.getChildAdapterPosition(child));
+        else if(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN && action == KeyEvent.ACTION_DOWN && !event.isLongPress()) {
+            FloatingActionButton fab = findViewById(R.id.fab);
+            fab.hide();
+            return true;
         }
-
-        return false;
-    }
-
-    @Override
-    public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-
-    }
-
-    @Override
-    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
-    }
+        else {
+            return super.dispatchKeyEvent(event);
+        }
+    }*/
 }
