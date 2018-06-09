@@ -36,7 +36,7 @@
                 android:textStyle="bold"/>
         </android.support.v7.widget.CardView>
 
-        <android.support.design.widget.FloatingActionButton
+        <ar.com.rodrilapenta.favsites.gui.custom_views.MovableFloatingActionButton
             android:id="@+id/fabVolumeUp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
 
         </android.support.v7.widget.CardView>
 
-        <android.support.design.widget.FloatingActionButton
+        <ar.com.rodrilapenta.favsites.gui.custom_views.MovableFloatingActionButton
             android:id="@+id/fabVolumeDown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -116,7 +116,7 @@
 
         </android.support.v7.widget.CardView>
 
-        <android.support.design.widget.FloatingActionButton
+        <ar.com.rodrilapenta.favsites.gui.custom_views.MovableFloatingActionButton
             android:id="@+id/fabFullscreen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -130,28 +130,6 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/layoutFabSettings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="0dp"
-        android:orientation="horizontal">
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fabSetting"
-            android:layout_margin="@dimen/fab_margin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:borderWidth="0dp"
-            app:elevation="0dp"
-            android:layout_gravity="bottom|end"
-            android:src="@drawable/settings"
-            app:backgroundTint="@color/colorPrimary"
-            app:fabSize="normal" />
-
-
-    </LinearLayout>
     <!--android:src="@drawable/ic_close_black_24dp"-->
 </FrameLayout>

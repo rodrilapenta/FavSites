@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ar.com.rodrilapenta.multiapptabs.activities.MainActivity">
+    tools:context=".activities.MainActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -22,6 +22,72 @@
 
     <include android:id="@+id/content_main" layout="@layout/content_main" />
 
-    <include layout="@layout/layout_fab_submenu"/>
+
+    <!--<include layout="@layout/layout_fab_submenu"/>-->
+
+    <ar.com.rodrilapenta.favsites.gui.custom_views.MovableFloatingActionButton
+        android:id="@+id/fabWebBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="@dimen/fab_margin"
+        app:borderWidth="0dp"
+        app:elevation="0dp"
+        app:backgroundTint="@color/colorPrimary"
+        android:src="@drawable/webbacktransparent"
+        app:fabSize="normal" />
+
+    <ar.com.rodrilapenta.favsites.gui.custom_views.MovableFloatingActionButton
+        android:id="@+id/fabWebForward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:borderWidth="0dp"
+        app:elevation="0dp"
+        app:backgroundTint="@color/colorPrimary"
+        android:src="@drawable/webforwardtransparent"
+        app:fabSize="normal" />
+
+    <ar.com.rodrilapenta.favsites.gui.custom_views.MovableFloatingActionButton
+        android:id="@+id/fabVolumeUp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/volumeup"
+        app:backgroundTint="@color/colorPrimary"
+        app:borderWidth="0dp"
+        app:elevation="0dp"
+        app:fabSize="normal"
+        app:layout_anchor="@+id/content_main"
+        app:layout_anchorGravity="right|center" />
+
+    <ar.com.rodrilapenta.favsites.gui.custom_views.MovableFloatingActionButton
+        android:id="@+id/fabVolumeDown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/volumedown"
+        app:backgroundTint="@color/colorPrimary"
+        app:borderWidth="0dp"
+        app:elevation="0dp"
+        app:fabSize="normal"
+        app:layout_anchor="@+id/content_main"
+        app:layout_anchorGravity="left|center" />
+
+    <ar.com.rodrilapenta.favsites.gui.custom_views.MovableFloatingActionButton
+        android:id="@+id/fabFullscreen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="@dimen/fab_margin"
+        app:borderWidth="0dp"
+        app:elevation="0dp"
+        app:backgroundTint="@color/colorPrimary"
+        android:src="@drawable/fullscreen"
+        app:fabSize="normal" />
+
 
 </android.support.design.widget.CoordinatorLayout>

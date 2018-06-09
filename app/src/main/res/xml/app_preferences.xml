@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:key="userFingerprintSetting"
+        android:title="Usar huella digital"
+        android:summary="Activa este item si deseas que la app te pida la huella digital para utilizarla"
+        android:defaultValue="false" />
+</PreferenceScreen>
