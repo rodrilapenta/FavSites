@@ -1,6 +1,11 @@
 package ar.com.rodrilapenta.favsites.gui.custom_views;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -10,7 +15,10 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import ar.com.rodrilapenta.favsites.R;
 
@@ -22,16 +30,66 @@ public class CustomWebView extends WebView {
     Context context;
     GestureDetector gestureDetector;
     ScaleGestureDetector scaleGestureDetector;
+    private String title;
+    private Toolbar toolbar;
 
-    private static final int SWIPE_THRESHOLD = 100;
-    private static final int SWIPE_VELOCITY_THRESHOLD = 100;
-
-    public CustomWebView(Context context, AttributeSet attrs) {
+    public CustomWebView(final Context context, AttributeSet attrs) {
         super(context, attrs);
-
+        toolbar = findViewById(R.id.toolbar);
         this.context = context;
         gestureDetector = new GestureDetector(context, sogl);
         scaleGestureDetector = new ScaleGestureDetector(context, sosgl);
+        getSettings().setUserAgentString("Mozilla/5.0 (Linux; Android 4.1.1; Galaxy Nexus Build/JRO03C) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19");
+
+        this.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished (WebView view, String url) {
+                toolbar.setTitle(view.getTitle());
+
+                view.evaluateJavascript(
+                "(function() { " +
+                        "var metas = document.getElementsByTagName('meta'); \n" +
+                        "\n" +
+                        "   for (var i=0; i<metas.length; i++) { \n" +
+                        "      if (metas[i].getAttribute(\"name\") == \"theme-color\") { \n" +
+                        "         return metas[i].getAttribute(\"content\"); \n" +
+                        "      } \n" +
+                        "   }})();",
+                new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String backgroundColor) {
+                        if(!backgroundColor.equals("null")) {
+                            backgroundColor = backgroundColor.replace("\"", "").toUpperCase();
+                            System.out.println("HTML COLOR: " + backgroundColor);
+                            switch (backgroundColor) {
+                                case "#FFFFFF":
+                                    toolbar.setBackgroundColor(Color.parseColor("#000000"));
+                                    ((Activity) context).getWindow().setStatusBarColor(Color.parseColor("#000000"));
+                                    break;
+                                default:
+                                    toolbar.setBackgroundColor(Color.parseColor(backgroundColor.replace("\"", "")));
+                                    ((Activity) context).getWindow().setStatusBarColor(Color.parseColor(backgroundColor.replace("\"", "")));
+                                    break;
+                            }
+                        }
+                        else {
+                            toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                            ((Activity) context).getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+                        }
+                    }
+                });
+            }
+
+
+
+        });
+
+        this.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int progress) {
+                toolbar.setTitle("Cargando...");
+            }
+        });
     }
 
     @Override
@@ -98,5 +156,13 @@ public class CustomWebView extends WebView {
 
     public void setScaleGestureDetector(ScaleGestureDetector scaleGestureDetector) {
         this.scaleGestureDetector = scaleGestureDetector;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setToolbar(Toolbar toolbar) {
+        this.toolbar = toolbar;
     }
 }

@@ -6,4 +6,5 @@
 
     <string name="action_settings">Ajustes</string>
     <string name="title_activity_login">LoginActivity</string>
+    <string name="google_user_image">Imagen del usuario</string>
 </resources>

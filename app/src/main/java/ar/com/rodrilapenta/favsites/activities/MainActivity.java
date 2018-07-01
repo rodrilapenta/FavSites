@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private DrawerLayout drawerLayout;
     private SessionManager sessionManager;
     private Boolean isFullscreenActive = false;
     private CustomWebView wb;
@@ -76,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+        drawerLayout = findViewById(R.id.drawer_layout);
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         sessionManager = SessionManager.getInstance(MainActivity.this);
@@ -140,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         wb = findViewById(R.id.webview);
+        wb.setToolbar(toolbar);
         wb.getSettings().setJavaScriptEnabled(true);
         wb.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
         wb.setScaleGestureDetector(new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -154,42 +158,15 @@ public class MainActivity extends AppCompatActivity {
 
         }));
 
-        wb.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished (WebView view, String url) {
-                view.evaluateJavascript(
-                        "(function() { " +
-                                "var metas = document.getElementsByTagName('meta'); \n" +
-                                "\n" +
-                                "   for (var i=0; i<metas.length; i++) { \n" +
-                                "      if (metas[i].getAttribute(\"name\") == \"theme-color\") { \n" +
-                                "         return metas[i].getAttribute(\"content\"); \n" +
-                                "      } \n" +
-                                "   }})();",
-                        new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String html) {
-                                System.out.println("HTML COLOR: " + html);
-                                if(!html.equals("null")) {
-                                    toolbar.setBackgroundColor(Color.parseColor(html.replace("\"", "")));
-                                    getWindow().setStatusBarColor(Color.parseColor(html.replace("\"", "")));
-                                }
-                                else {
-                                    toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                                    getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
-                                }
-                            }
-                        });
-            }
-        });
-
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
                 mRecyclerView, new ClickListener() {
 
             @Override
             public void onClick(View view, final int position) {
                 String uri = ((TextView) view.findViewById(R.id.webInstanceUri)).getText().toString();
-                toolbar.setTitle(((TextView) view.findViewById(R.id.webInstanceName)).getText().toString());
+                toolbar.setTitle("Cargando sitio...");
+                drawerLayout.closeDrawer(Gravity.LEFT);
+                wb.setTitle(((TextView) view.findViewById(R.id.webInstanceName)).getText().toString());
                 wb.loadUrl(uri);
             }
 
@@ -236,34 +213,35 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        final ViewGroup popupView;
+        final AlertDialog.Builder alertDialogBuilder;
         switch (item.getItemId()) {
             case R.id.addWebInstance:
-                final ViewGroup popupView = (ViewGroup) ((LayoutInflater) getSystemService( Context.LAYOUT_INFLATER_SERVICE )).inflate(R.layout.dialog_add_webinstance, null);
-                AlertDialog.Builder alertDialogBuilder =
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setTitle("Nuevo sitio")
-                                .setPositiveButton("Agregar", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // capturar y guardar en bd
-                                        final String NAME = (((TextView) popupView.findViewById(R.id.newWebInstanceName)).getText().toString());
-                                        final String DESCRIPTION = (((TextView) popupView.findViewById(R.id.newWebInstanceDescription)).getText().toString());
-                                        final String URI = (((TextView) popupView.findViewById(R.id.newWebInstanceUri)).getText().toString());
-                                        if (NAME.isEmpty() || DESCRIPTION.isEmpty() || URI.isEmpty()) {
-                                            Toast.makeText(MainActivity.this, "Datos insuficientes", Toast.LENGTH_SHORT).show();
+                popupView = (ViewGroup) ((LayoutInflater) getSystemService( Context.LAYOUT_INFLATER_SERVICE )).inflate(R.layout.dialog_add_webinstance, null);
+                alertDialogBuilder = new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Nuevo sitio")
+                    .setPositiveButton("Agregar", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // capturar y guardar en bd
+                            final String NAME = (((TextView) popupView.findViewById(R.id.newWebInstanceName)).getText().toString());
+                            final String DESCRIPTION = (((TextView) popupView.findViewById(R.id.newWebInstanceDescription)).getText().toString());
+                            final String URI = (((TextView) popupView.findViewById(R.id.newWebInstanceUri)).getText().toString());
+                            if (NAME.isEmpty() || DESCRIPTION.isEmpty() || URI.isEmpty()) {
+                                Toast.makeText(MainActivity.this, "Datos insuficientes", Toast.LENGTH_SHORT).show();
 
-                                        } else {
-                                            WebInstance wi = new WebInstance(NAME, DESCRIPTION, URI);
-                                            sessionManager.addWebInstance(wi);
-                                            Toast.makeText(MainActivity.this, "Sitio agregado", Toast.LENGTH_SHORT).show();
-                                            dialog.dismiss();
-                                        }
-                                    }
-                                })
-                                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                    }
-                                });
+                            } else {
+                                WebInstance wi = new WebInstance(NAME, DESCRIPTION, URI);
+                                sessionManager.addWebInstance(wi);
+                                Toast.makeText(MainActivity.this, "Sitio agregado", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            }
+                        }
+                    })
+                    .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                    }
+                });
                 alertDialogBuilder.setView(popupView);
                 alertDialogBuilder.show();
                 return true;
@@ -273,6 +251,36 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_settings:
                 Intent intent = new Intent(MainActivity.this, UserSettingsActivity.class);
                 startActivity(intent);
+            case R.id.addThisUrl:
+                popupView = (ViewGroup) ((LayoutInflater) getSystemService( Context.LAYOUT_INFLATER_SERVICE )).inflate(R.layout.dialog_add_webinstance, null);
+                ((TextView) popupView.findViewById(R.id.newWebInstanceUri)).setText(wb.getUrl());
+                alertDialogBuilder = new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Agregar este sitio")
+                            .setPositiveButton("Agregar", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // capturar y guardar en bd
+                                    final String NAME = (((TextView) popupView.findViewById(R.id.newWebInstanceName)).getText().toString());
+                                    final String DESCRIPTION = (((TextView) popupView.findViewById(R.id.newWebInstanceDescription)).getText().toString());
+                                    final String URI = (((TextView) popupView.findViewById(R.id.newWebInstanceUri)).getText().toString());
+                                    if (NAME.isEmpty() || DESCRIPTION.isEmpty() || URI.isEmpty()) {
+                                        Toast.makeText(MainActivity.this, "Datos insuficientes", Toast.LENGTH_SHORT).show();
+
+                                    } else {
+                                        WebInstance wi = new WebInstance(NAME, DESCRIPTION, URI);
+                                        sessionManager.addWebInstance(wi);
+                                        Toast.makeText(MainActivity.this, "Sitio agregado", Toast.LENGTH_SHORT).show();
+                                        dialog.dismiss();
+                                    }
+                                }
+                            })
+                            .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+                alertDialogBuilder.setView(popupView);
+                alertDialogBuilder.show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -359,9 +367,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             if (doubleBackToExitPressedOnce) {
                 super.onBackPressed();

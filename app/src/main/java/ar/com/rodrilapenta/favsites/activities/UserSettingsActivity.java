@@ -24,7 +24,7 @@ public class UserSettingsActivity extends PreferenceActivity {
         FingerprintManager fingerprintManager =
                 (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
 
-        userFingerprintSetting.setEnabled(!fingerprintManager.hasEnrolledFingerprints());
+        userFingerprintSetting.setEnabled(fingerprintManager.hasEnrolledFingerprints());
         userFingerprintSetting.setChecked(sessionManager.getFingerprintUsage());
         userFingerprintSetting.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
