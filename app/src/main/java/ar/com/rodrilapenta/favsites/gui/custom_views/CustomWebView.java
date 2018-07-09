@@ -27,9 +27,9 @@ import ar.com.rodrilapenta.favsites.R;
  */
 
 public class CustomWebView extends WebView {
-    Context context;
-    GestureDetector gestureDetector;
-    ScaleGestureDetector scaleGestureDetector;
+    private Context context;
+    private GestureDetector gestureDetector;
+    private ScaleGestureDetector scaleGestureDetector;
     private String title;
     private Toolbar toolbar;
 

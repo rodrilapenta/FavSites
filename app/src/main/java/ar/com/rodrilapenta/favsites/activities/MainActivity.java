@@ -1,9 +1,9 @@
 package ar.com.rodrilapenta.favsites.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,11 +27,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.webkit.ValueCallback;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,16 +60,15 @@ import ar.com.rodrilapenta.favsites.interfaces.ClickListener;
 public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
     private DrawerLayout drawerLayout;
     private SessionManager sessionManager;
     private Boolean isFullscreenActive = false;
     private CustomWebView wb;
     private AudioManager audioManager;
-    private boolean actionFabsHidden = true, webFabsHidden = true, doubleBackToExitPressedOnce = false;;
-    private LinearLayout layoutFabVolumeUp, layoutFabVolumeDown, layoutFabFullscreen;
+    private boolean actionFabsHidden = true, webFabsHidden = true, doubleBackToExitPressedOnce = false;
     private MovableFloatingActionButton fabVolumeUp, fabVolumeDown, fabFullscreen, fabWebBack, fabWebForward;
 
+    @SuppressLint("CutPasteId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView = findViewById(R.id.recyclerWebInstances);
         mRecyclerView.setHasFixedSize(true);
 
-        mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         wb = findViewById(R.id.webview);
@@ -165,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view, final int position) {
                 String uri = ((TextView) view.findViewById(R.id.webInstanceUri)).getText().toString();
                 toolbar.setTitle("Cargando sitio...");
-                drawerLayout.closeDrawer(Gravity.LEFT);
+                drawerLayout.closeDrawer(Gravity.START);
                 wb.setTitle(((TextView) view.findViewById(R.id.webInstanceName)).getText().toString());
                 wb.loadUrl(uri);
             }
@@ -222,7 +218,6 @@ public class MainActivity extends AppCompatActivity {
                     .setTitle("Nuevo sitio")
                     .setPositiveButton("Agregar", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            // capturar y guardar en bd
                             final String NAME = (((TextView) popupView.findViewById(R.id.newWebInstanceName)).getText().toString());
                             final String DESCRIPTION = (((TextView) popupView.findViewById(R.id.newWebInstanceDescription)).getText().toString());
                             final String URI = (((TextView) popupView.findViewById(R.id.newWebInstanceUri)).getText().toString());
@@ -251,6 +246,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_settings:
                 Intent intent = new Intent(MainActivity.this, UserSettingsActivity.class);
                 startActivity(intent);
+                return true;
             case R.id.addThisUrl:
                 popupView = (ViewGroup) ((LayoutInflater) getSystemService( Context.LAYOUT_INFLATER_SERVICE )).inflate(R.layout.dialog_add_webinstance, null);
                 ((TextView) popupView.findViewById(R.id.newWebInstanceUri)).setText(wb.getUrl());
@@ -258,7 +254,6 @@ public class MainActivity extends AppCompatActivity {
                             .setTitle("Agregar este sitio")
                             .setPositiveButton("Agregar", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    // capturar y guardar en bd
                                     final String NAME = (((TextView) popupView.findViewById(R.id.newWebInstanceName)).getText().toString());
                                     final String DESCRIPTION = (((TextView) popupView.findViewById(R.id.newWebInstanceDescription)).getText().toString());
                                     final String URI = (((TextView) popupView.findViewById(R.id.newWebInstanceUri)).getText().toString());
@@ -304,12 +299,13 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    @SuppressWarnings("unchecked")
     private void loadWebInstances(final WebView wb) {
         Query query = sessionManager.getUserFirebaseDatabaseStructure();
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                List<WebInstance> webInstances = new ArrayList<WebInstance>();
+                List<WebInstance> webInstances = new ArrayList<>();
                 for (DataSnapshot addressSnapshot : dataSnapshot.getChildren()) {
                     Map<String, String> map = (Map<String, String>) addressSnapshot.getValue();
                     webInstances.add(new WebInstance(map.get("name"), map.get("description"), map.get("uri"), map.get("firebaseId")));
