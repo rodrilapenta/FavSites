@@ -6,7 +6,7 @@ android {
         applicationId "ar.com.rodrilapenta.favsites"
         minSdkVersion 23
         targetSdkVersion 26
-        versionCode 2
+        versionCode 4
         versionName "1.0.0-BETA"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

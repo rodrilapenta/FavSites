@@ -39,6 +39,7 @@ public class CustomWebView extends WebView {
         this.context = context;
         gestureDetector = new GestureDetector(context, sogl);
         scaleGestureDetector = new ScaleGestureDetector(context, sosgl);
+        System.out.println("USER AGENT: " + getSettings().getUserAgentString());
         getSettings().setUserAgentString("Mozilla/5.0 (Linux; Android 4.1.1; Galaxy Nexus Build/JRO03C) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19");
 
         this.setWebViewClient(new WebViewClient() {
